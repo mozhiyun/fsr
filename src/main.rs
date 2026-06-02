@@ -1,6 +1,7 @@
 mod new;
 mod replace;
 mod template;
+mod upgrade;
 
 use std::path::PathBuf;
 
@@ -33,6 +34,8 @@ enum Cmd {
         #[arg(long)]
         no_git: bool,
     },
+    /// 从 GitHub 拉取最新 fsr 并覆盖安装（cargo install --force）
+    Upgrade(#[command(flatten)] upgrade::UpgradeArgs),
 }
 
 fn main() -> Result<()> {
@@ -48,5 +51,6 @@ fn main() -> Result<()> {
             template_path: template_dir,
             no_git,
         }),
+        Cmd::Upgrade(args) => upgrade::run(args),
     }
 }

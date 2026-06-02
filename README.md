@@ -37,6 +37,17 @@ fsr new my-app --path /tmp/my-app   # 指定路径
 fsr new my-app --no-git             # 不执行 git init
 ```
 
+### 升级 fsr 自身
+
+从 GitHub `main` 拉取最新源码并覆盖安装到 `~/.cargo/bin`：
+
+```bash
+fsr upgrade
+# 等价于: cargo install --git https://github.com/mozhiyun/fsr --branch main --force
+```
+
+可选：`fsr upgrade --branch dev`、`FSR_INSTALL_REPO=<url> fsr upgrade`。
+
 ## 配置
 
 | 环境变量 | 说明 |
