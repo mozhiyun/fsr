@@ -6,7 +6,7 @@ use anyhow::{bail, Context, Result};
 use clap::Args;
 use walkdir::WalkDir;
 
-use crate::replace::project_replacements;
+use crate::replace::{kebab_to_snake, project_replacements};
 use crate::template::{resolve_template_source, TemplateSource};
 
 #[derive(Debug, Args)]
@@ -244,18 +244,44 @@ fn git_init(dest: &Path) -> Result<()> {
 
 fn print_next_steps(dest: &Path, name: &str) {
     let dir = dest.display();
+    let db_name = kebab_to_snake(name);
+    let has_env = dest.join(".env").exists();
+    let has_compose = dest.join("docker-compose.yml").exists();
+
     println!();
     println!("✓ 项目 {name} 已创建: {dir}");
     println!();
-    println!("下一步:");
+    println!("下一步（本地开发，数据库需自行用 Docker 启动）:");
+    println!();
     println!("  cd {dir}");
     println!("  npm install");
-    println!("  cp .env.example .env   # 若尚未生成 .env");
-    println!("  just dev-db");
-    println!("  just migrate && just seed");
-    println!("  just dev-api");
-    println!("  just dev-admin   # 管理后台 :5174");
-    println!("  just dev-web     # ToC :5173");
+    println!();
+    println!("  # 1) 环境与 Compose（fsr 已从 example 复制并写好库名）");
+    if has_env {
+        println!("  #    .env 已存在 → POSTGRES_DB={db_name}");
+        println!("  #              DATABASE_URL=postgres://app:app@localhost:5432/{db_name}");
+    } else {
+        println!("  cp .env.example .env");
+    }
+    if has_compose {
+        println!("  #    docker-compose.yml 已存在（与 .env 端口/库名一致）");
+    } else {
+        println!("  cp docker-compose.example.yml docker-compose.yml");
+    }
+    println!();
+    println!("  # 2) 启动 Postgres + Redis（需本机已装 Docker）");
+    println!("  just dev-db          # 首次启动会在容器内创建数据库 \"{db_name}\"");
+    println!();
+    println!("  # 3) 表结构与种子（just migrate 不会建库，必须先 dev-db）");
+    println!("  just migrate         # 建表");
+    println!("  just seed            # 角色/权限/管理员（新库执行一次）");
+    println!();
+    println!("  # 4) 启动服务");
+    println!("  just dev-api         # API :8080（启动时自动 migrate，不 seed）");
+    println!("  just dev-admin       # 管理后台 :5174");
+    println!("  just dev-web         # ToC :5173");
+    println!();
+    println!("  默认管理员见 README（admin@example.com / admin12345）");
 }
 
 fn should_skip_path(path: &Path, root: &Path) -> bool {

@@ -19,7 +19,8 @@ fsr new my-app
 ```
 
 - 在当前目录创建 `./my-app/`（目录**必须不存在**，拒绝覆盖）
-- 默认 **git clone** 远程模板 → 删除 `.git` → 替换项目名 → 复制 `.env` / `docker-compose.yml` → `git init`
+- 默认 **git clone** 远程模板 → 删除 `.git` → 替换项目名 → 复制 `.env` / `docker-compose.yml`（库名与项目名一致）→ `git init`
+- 创建成功后会打印本地开发步骤：**先 `just dev-db` 再起库表**（`migrate` 不会自动建库）
 
 ### 本地模板（开发时，不走 git clone）
 
